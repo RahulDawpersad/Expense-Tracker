@@ -1,0 +1,50 @@
+<h1>Expense Tracker</h1>
+
+<form id="expense-form">
+  <label for="amount">Amount:</label>
+  <input type="text" id="amount" name="amount" required>
+
+  <label for="category">Category:</label>
+  <input type="text" id="category" name="category" required>
+
+  <label for="notes">Notes:</label>
+  <textarea id="notes" name="notes"></textarea>
+
+  <label for="date">Date:</label>
+  <input type="date" id="date" name="date" required>
+
+  <button type="submit">Add Expense</button>
+</form>
+
+<ul id="transaction-list"></ul>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // Load transactions on page load
+    $.get('/transactions', function(data) {
+      const transactionList = $('#transaction-list');
+      transactionList.empty();
+      data.forEach(function(transaction) {
+        transactionList.append(`<li>${transaction.amount} - ${transaction.category} - ${transaction.date}</li>`);
+      });
+    });
+
+    // Submit expense form
+    $('#expense-form').submit(function(event) {
+      event.preventDefault();
+      const formData = $(this).serialize();
+      $.post('/add', formData, function(response) {
+        console.log(response);
+        // Reload transactions after adding a new one
+        $.get('/transactions', function(data) {
+          const transactionList = $('#transaction-list');
+          transactionList.empty();
+          data.forEach(function(transaction) {
+            transactionList.append(`<li>${transaction.amount} - ${transaction.category} - ${transaction.date}</li>`);
+          });
+        });
+      });
+    });
+  });
+</script>
